@@ -17,6 +17,9 @@ extension ContentView {
         
         @Published var isUnlocked = false
         
+        @Published var isShowingAlertWithError = false
+        @Published var errorMessage: String = ""
+        
         let savePath = FileManager.documentsDirectory.appendingPathComponent("SavedPlaces")
         
         init() {
@@ -67,11 +70,20 @@ extension ContentView {
                             self.isUnlocked = true
                         }
                     } else {
-                        // error
+                        if let error = authenticationError {
+                            self.showAlert(message: error.localizedDescription)
+                        }
                     }
                 }
             } else {
-                // no biometrics
+                showAlert(message: "Your device doesn't support biometric authentication.")
+            }
+        }
+        
+        func showAlert(message: String) {
+            Task { @MainActor in
+                errorMessage = message
+                isShowingAlertWithError = true
             }
         }
     }
